@@ -177,7 +177,7 @@ textarea{resize:vertical;min-height:64px}
 
 <div class="topbar">
   <h1>La Marmite <span>Bleue</span> · Commandes</h1>
-  <div class="build">v.04/07/2026 12:30</div>
+  <div class="build">v.04/07/2026 13:45</div>
 </div>
 
 <!-- ============ PAGE : COMMANDES EN COURS ============ -->
@@ -218,6 +218,124 @@ textarea{resize:vertical;min-height:64px}
   <div id="liste-fournisseurs"><div class="vide">Chargement…</div></div>
 </div>
 
+<!-- ============ PAGE : BESOINS ============ -->
+<div class="page" id="page-besoins">
+  <h2 class="titre-section">Calcul des besoins</h2>
+
+  <div class="carte" style="border-left-color:var(--teal)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">🍽️ Couverts prévus</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn btn-teal" id="btn-mode-periode" style="flex:1">Par période</button>
+      <button class="btn btn-clair" id="btn-mode-jours" style="flex:1">Par jour</button>
+    </div>
+    <div id="bloc-periode">
+      <label class="champ">Nombre total de couverts</label>
+      <input type="number" id="couverts-periode" inputmode="numeric" placeholder="Ex : 800" min="0">
+      <label class="champ">Sur combien de jours ?</label>
+      <input type="number" id="nb-jours-periode" inputmode="numeric" placeholder="Ex : 7" min="1" value="7">
+    </div>
+    <div id="bloc-jours" style="display:none">
+      <div id="lignes-jours"></div>
+      <button class="btn btn-clair" id="btn-ajouter-jour" style="width:100%;margin-top:4px">+ Ajouter un jour</button>
+    </div>
+  </div>
+
+  <div class="carte" style="border-left-color:var(--ambre)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">📦 Stock actuel</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label class="champ">Moules en stock (kg)</label>
+        <input type="number" id="stock-moules" inputmode="decimal" step="0.1" min="0" placeholder="0" value="0">
+      </div>
+      <div>
+        <label class="champ">Pommes de terre (kg)</label>
+        <input type="number" id="stock-frites" inputmode="decimal" step="0.1" min="0" placeholder="0" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="carte" style="border-left-color:var(--muet)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">🛡️ Stock sécurité (fixe)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label class="champ">Moules sécurité (kg)</label>
+        <input type="number" id="secu-moules" inputmode="decimal" step="0.1" min="0" placeholder="Ex : 10" value="10">
+      </div>
+      <div>
+        <label class="champ">Pommes de terre (kg)</label>
+        <input type="number" id="secu-frites" inputmode="decimal" step="0.1" min="0" placeholder="Ex : 5" value="5">
+      </div>
+    </div>
+  </div>
+
+  <div class="carte" style="border-left-color:var(--vert)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:4px">📊 Import fichier caisse (optionnel)</div>
+    <div style="font-size:12.5px;color:var(--muet);margin-bottom:10px">CSV SumUp — la moyenne des ventes réelles remplace les couverts prévus</div>
+    <input type="file" id="import-caisse" accept=".csv" style="font-size:13px;width:100%">
+    <div id="caisse-info" style="font-size:12.5px;color:var(--vert);margin-top:6px;display:none"></div>
+  </div>
+
+  <!-- RATIOS BASE -->
+  <div class="carte" style="border-left-color:var(--muet)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">⚖️ Ratios base par couvert</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label class="champ">Moules / couvert (g)</label>
+        <input type="number" id="ratio-moules" inputmode="numeric" min="100" placeholder="800" value="800">
+      </div>
+      <div>
+        <label class="champ">Pommes de terre / couvert (g)</label>
+        <input type="number" id="ratio-frites" inputmode="numeric" min="50" placeholder="300" value="300">
+      </div>
+    </div>
+  </div>
+
+  <!-- MIX SAUCES -->
+  <div class="carte" style="border-left-color:var(--teal)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:4px">🥘 Mix sauces (% modifiables)</div>
+    <div style="font-size:12px;color:var(--muet);margin-bottom:10px">Total doit faire 100% — ajuste selon la réalité du service</div>
+    <div id="mix-sauces-lignes"></div>
+    <div id="mix-total-alerte" style="font-size:12.5px;font-weight:700;margin-top:8px;padding:6px 10px;border-radius:8px;background:#EDF2F1;color:var(--teal)">Total : 0%</div>
+  </div>
+
+  <!-- STOCKS INGRÉDIENTS SAUCES -->
+  <div class="carte" style="border-left-color:var(--ambre)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px">📦 Stocks ingrédients sauces</div>
+    <div style="font-size:12px;color:var(--muet);margin-bottom:10px">Laisse à 0 si tu ne suis pas cet ingrédient</div>
+    <div id="stocks-ingredients"></div>
+  </div>
+
+  <button class="btn btn-terra btn-large" id="btn-calculer">🧮 Calculer les besoins</button>
+
+  <div id="bloc-resultat" style="display:none;margin-top:16px">
+    <div style="font-family:Big Shoulders Display,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;color:var(--teal);margin-bottom:12px">Résultat</div>
+    <div id="source-calcul" style="font-size:12.5px;color:var(--muet);margin-bottom:10px;padding:8px 12px;background:#EDF2F1;border-radius:8px"></div>
+
+    <!-- Moules -->
+    <div class="carte" style="border-left-color:var(--terracotta)">
+      <div style="font-size:13px;color:var(--muet);margin-bottom:8px;font-weight:600">MOULES 🦪</div>
+      <div id="res-moules-detail" style="font-size:13px;color:var(--muet);margin-bottom:6px"></div>
+      <div id="res-moules" style="font-size:22px;font-weight:800;color:var(--teal)"></div>
+    </div>
+
+    <!-- Pommes de terre -->
+    <div class="carte" style="border-left-color:var(--ambre)">
+      <div style="font-size:13px;color:var(--muet);margin-bottom:8px;font-weight:600">POMMES DE TERRE 🥔</div>
+      <div id="res-frites-detail" style="font-size:13px;color:var(--muet);margin-bottom:6px"></div>
+      <div id="res-frites" style="font-size:22px;font-weight:800;color:var(--teal)"></div>
+    </div>
+
+    <!-- Ingrédients sauces -->
+    <div class="carte" style="border-left-color:var(--vert)">
+      <div style="font-size:13px;color:var(--muet);margin-bottom:10px;font-weight:600">INGRÉDIENTS SAUCES 🥘</div>
+      <div id="res-ingredients"></div>
+    </div>
+
+    <div id="bloc-alerte" style="display:none;background:#FDECEA;border:1px solid #E8BCBC;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13.5px;color:var(--rouge)"></div>
+    <button class="btn btn-teal btn-large" id="btn-creer-commande-besoins">📋 Créer une commande depuis ces besoins</button>
+  </div>
+</div>
+
 <!-- ============ PAGE : HISTORIQUE ============ -->
 <div class="page" id="page-historique">
   <h2 class="titre-section">Historique livré</h2>
@@ -232,6 +350,7 @@ textarea{resize:vertical;min-height:64px}
 <div class="tabbar">
   <button class="actif" data-page="commandes"><span class="ico">📋</span>Commandes<span class="badge" id="badge-cmd" style="display:none">0</span></button>
   <button data-page="nouvelle"><span class="ico">➕</span>Nouvelle</button>
+  <button data-page="besoins"><span class="ico">🧮</span>Besoins</button>
   <button data-page="fournisseurs"><span class="ico">🚚</span>Fournisseurs</button>
   <button data-page="historique"><span class="ico">🗂️</span>Historique</button>
 </div>
@@ -887,6 +1006,324 @@ document.getElementById('btn-confirm-oui').addEventListener('click', function(){
 document.getElementById('btn-confirm-non').addEventListener('click', function(){
   document.getElementById('voile-confirm').classList.remove('ouvert');
   confirmCallback = null;
+});
+
+/* ===================== PAGE BESOINS ===================== */
+var modeCouvertsActif = 'periode';
+var couvertsDepuisCaisse = null;
+
+document.getElementById('btn-mode-periode').addEventListener('click', function(){
+  modeCouvertsActif = 'periode';
+  document.getElementById('bloc-periode').style.display = 'block';
+  document.getElementById('bloc-jours').style.display = 'none';
+  document.getElementById('btn-mode-periode').className = 'btn btn-teal';
+  document.getElementById('btn-mode-jours').className = 'btn btn-clair';
+});
+
+document.getElementById('btn-mode-jours').addEventListener('click', function(){
+  modeCouvertsActif = 'jours';
+  document.getElementById('bloc-periode').style.display = 'none';
+  document.getElementById('bloc-jours').style.display = 'block';
+  document.getElementById('btn-mode-jours').className = 'btn btn-teal';
+  document.getElementById('btn-mode-periode').className = 'btn btn-clair';
+  if(document.querySelectorAll('#lignes-jours .ligne-jour').length === 0){ ajouterJour(); }
+});
+
+function ajouterJour(label, val){
+  var div = document.createElement('div');
+  div.className = 'ligne-jour';
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 28px;gap:6px;align-items:center;margin-bottom:6px';
+  div.innerHTML =
+    '<input type="text" placeholder="Ex : Lundi 07/07" style="padding:9px 10px;border:1px solid var(--bord);border-radius:10px;font-family:Figtree,sans-serif;font-size:14px" value="' + (label||'') + '">' +
+    '<input type="number" inputmode="numeric" min="0" placeholder="couverts" style="padding:9px 8px;border:1px solid var(--bord);border-radius:10px;font-family:Figtree,sans-serif;font-size:14px;text-align:center" value="' + (val||'') + '">' +
+    '<button style="background:none;border:none;color:var(--rouge);font-size:18px;cursor:pointer;padding:4px">&#x2715;</button>';
+  div.querySelector('button').addEventListener('click', function(){ div.remove(); });
+  document.getElementById('lignes-jours').appendChild(div);
+}
+document.getElementById('btn-ajouter-jour').addEventListener('click', function(){ ajouterJour(); });
+
+document.getElementById('import-caisse').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var lignes = ev.target.result.split('\n').filter(function(l){ return l.trim(); });
+    var nbTransactions = 0;
+    lignes.forEach(function(l, i){
+      if(i === 0) return;
+      var cols = l.split(',');
+      if(cols.length > 2 && cols[0] && cols[0].trim()){ nbTransactions++; }
+    });
+    var info = document.getElementById('caisse-info');
+    info.style.display = 'block';
+    if(nbTransactions > 0){
+      couvertsDepuisCaisse = nbTransactions;
+      info.style.color = 'var(--vert)';
+      info.textContent = '\u2705 ' + nbTransactions + ' transactions \u2014 utilis\u00e9es comme base couverts';
+    } else {
+      info.style.color = 'var(--rouge)';
+      info.textContent = '\u26a0\ufe0f Aucune transaction d\u00e9tect\u00e9e \u2014 v\u00e9rifier le format CSV SumUp';
+      couvertsDepuisCaisse = null;
+    }
+  };
+  reader.readAsText(file);
+});
+
+/* ===================== RECETTES SAUCES ===================== */
+// Quantites par couvert adulte (pour 1 marmite individuelle)
+var SAUCES = [
+  {
+    id:'mariniere', nom:'Mariniere', emoji:'🍷',
+    pct: 35,
+    ingredients:[
+      {nom:'Vin blanc sec cuisine', unite:'cl', qte:10, stock:0},
+      {nom:'Echalotes', unite:'g', qte:15, stock:0},
+      {nom:'Persil frais', unite:'g', qte:5, stock:0},
+      {nom:'Creme fraiche 30%', unite:'cl', qte:5, stock:0},
+      {nom:'Beurre doux', unite:'g', qte:10, stock:0}
+    ]
+  },
+  {
+    id:'creme', nom:'Creme', emoji:'🤍',
+    pct: 25,
+    ingredients:[
+      {nom:'Creme fraiche 30%', unite:'cl', qte:15, stock:0},
+      {nom:'Ail', unite:'g', qte:5, stock:0},
+      {nom:'Persil frais', unite:'g', qte:5, stock:0},
+      {nom:'Beurre doux', unite:'g', qte:10, stock:0}
+    ]
+  },
+  {
+    id:'provencale', nom:'Provencale', emoji:'🍅',
+    pct: 20,
+    ingredients:[
+      {nom:'Tomates concassees 2.5kg', unite:'g', qte:80, stock:0},
+      {nom:'Ail', unite:'g', qte:8, stock:0},
+      {nom:'Herbes de Provence', unite:'g', qte:3, stock:0},
+      {nom:'Basilic frais', unite:'g', qte:5, stock:0},
+      {nom:'Huile d olive', unite:'cl', qte:5, stock:0}
+    ]
+  },
+  {
+    id:'chorizo', nom:'Chorizo', emoji:'🌶️',
+    pct: 12,
+    ingredients:[
+      {nom:'Chorizo tranche', unite:'g', qte:30, stock:0},
+      {nom:'Tomates concassees 2.5kg', unite:'g', qte:60, stock:0},
+      {nom:'Paprika fume', unite:'g', qte:3, stock:0},
+      {nom:'Huile d olive', unite:'cl', qte:3, stock:0}
+    ]
+  },
+  {
+    id:'roquefort', nom:'Roquefort', emoji:'🧀',
+    pct: 8,
+    ingredients:[
+      {nom:'Creme fraiche 30%', unite:'cl', qte:12, stock:0},
+      {nom:'Roquefort', unite:'g', qte:25, stock:0},
+      {nom:'Noix', unite:'g', qte:10, stock:0},
+      {nom:'Beurre doux', unite:'g', qte:8, stock:0}
+    ]
+  }
+];
+
+function construireUIBesoins(){
+  // Lignes mix sauces
+  var zMix = document.getElementById('mix-sauces-lignes');
+  zMix.innerHTML = '';
+  SAUCES.forEach(function(s){
+    var div = document.createElement('div');
+    div.style.cssText = 'display:grid;grid-template-columns:28px 1fr 70px 40px;gap:8px;align-items:center;margin-bottom:8px';
+    div.innerHTML = '<span style="font-size:18px">' + s.emoji + '</span>' +
+      '<span style="font-size:14px;font-weight:600">' + s.nom + '</span>' +
+      '<input type="number" id="pct-' + s.id + '" min="0" max="100" value="' + s.pct + '" inputmode="numeric" style="padding:8px;border:1px solid var(--bord);border-radius:8px;font-family:Figtree,sans-serif;font-size:14px;text-align:center" oninput="majTotalMix()">' +
+      '<span style="font-size:13px;color:var(--muet)">%</span>';
+    zMix.appendChild(div);
+  });
+  majTotalMix();
+
+  // Stocks ingrédients (liste dédupliquée)
+  var tous = {};
+  SAUCES.forEach(function(s){
+    s.ingredients.forEach(function(ing){
+      if(!tous[ing.nom]){ tous[ing.nom] = {unite: ing.unite, stock: ing.stock}; }
+    });
+  });
+  var zStock = document.getElementById('stocks-ingredients');
+  zStock.innerHTML = '';
+  Object.keys(tous).forEach(function(nom){
+    var info = tous[nom];
+    var div = document.createElement('div');
+    div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 40px;gap:6px;align-items:center;margin-bottom:6px';
+    div.innerHTML = '<span style="font-size:13px">' + nom + '</span>' +
+      '<input type="number" id="stocking-' + nom.replace(/[^a-zA-Z0-9]/g,'_') + '" min="0" step="any" value="0" inputmode="decimal" style="padding:8px;border:1px solid var(--bord);border-radius:8px;font-family:Figtree,sans-serif;font-size:13px;text-align:center">' +
+      '<span style="font-size:12px;color:var(--muet)">' + info.unite + '</span>';
+    zStock.appendChild(div);
+  });
+}
+
+function majTotalMix(){
+  var total = 0;
+  SAUCES.forEach(function(s){ total += parseInt(document.getElementById('pct-'+s.id).value)||0; });
+  var el = document.getElementById('mix-total-alerte');
+  el.textContent = 'Total : ' + total + '%';
+  if(total === 100){ el.style.background='#D9E9DD'; el.style.color='var(--vert)'; }
+  else if(total > 100){ el.style.background='#FDECEA'; el.style.color='var(--rouge)'; }
+  else { el.style.background='#F6E7CB'; el.style.color='#8A5E14'; }
+}
+
+// Construire l'UI au chargement de la page besoins
+document.querySelectorAll('.tabbar button').forEach(function(btn){
+  if(btn.dataset.page === 'besoins'){
+    btn.addEventListener('click', function(){
+      setTimeout(construireUIBesoins, 50);
+    });
+  }
+});
+construireUIBesoins();
+
+/* ===================== CALCUL PRINCIPAL ===================== */
+document.getElementById('btn-calculer').addEventListener('click', function(){
+  var ratioMoules = parseFloat(document.getElementById('ratio-moules').value) || 800;
+  var ratioFrites = parseFloat(document.getElementById('ratio-frites').value) || 300;
+  var stockMoules = parseFloat(document.getElementById('stock-moules').value) || 0;
+  var stockFrites = parseFloat(document.getElementById('stock-frites').value) || 0;
+  var secuMoules  = parseFloat(document.getElementById('secu-moules').value)  || 0;
+  var secuFrites  = parseFloat(document.getElementById('secu-frites').value)  || 0;
+
+  // Verif total mix = 100
+  var totalPct = 0;
+  SAUCES.forEach(function(s){ totalPct += parseInt(document.getElementById('pct-'+s.id).value)||0; });
+  if(totalPct !== 100){ toast('\u26a0\ufe0f Le mix sauces doit totaliser 100% (actuellement ' + totalPct + '%)'); return; }
+
+  var totalCouverts = 0;
+  var sourceTexte = '';
+
+  if(couvertsDepuisCaisse !== null){
+    totalCouverts = couvertsDepuisCaisse;
+    sourceTexte = 'Source : fichier caisse SumUp (' + totalCouverts + ' transactions)';
+  } else if(modeCouvertsActif === 'periode'){
+    totalCouverts = parseInt(document.getElementById('couverts-periode').value) || 0;
+    var nbJ = parseInt(document.getElementById('nb-jours-periode').value) || 1;
+    sourceTexte = 'Source : periode - ' + totalCouverts + ' couverts sur ' + nbJ + ' jour(s)';
+  } else {
+    var lignes = document.querySelectorAll('#lignes-jours .ligne-jour');
+    var detailJours = [];
+    lignes.forEach(function(l){
+      var inputs = l.querySelectorAll('input');
+      var lbl = inputs[0].value.trim() || '-';
+      var val = parseInt(inputs[1].value) || 0;
+      totalCouverts += val;
+      detailJours.push(lbl + ' : ' + val);
+    });
+    sourceTexte = 'Source : par jour - ' + detailJours.join(' | ');
+  }
+
+  if(totalCouverts === 0){ toast('\u26a0\ufe0f Saisis le nombre de couverts'); return; }
+
+  // Moules + frites
+  var besoinMoulesBrut = (totalCouverts * ratioMoules) / 1000;
+  var besoinFritesBrut = (totalCouverts * ratioFrites) / 1000;
+  var besoinMoulesNet = Math.max(0, besoinMoulesBrut + secuMoules - stockMoules);
+  var besoinFritesNet = Math.max(0, besoinFritesBrut + secuFrites - stockFrites);
+
+  // Calcul ingredients sauces
+  var totauxIngs = {};
+  SAUCES.forEach(function(s){
+    var pct = (parseInt(document.getElementById('pct-'+s.id).value)||0) / 100;
+    var couvSauce = Math.round(totalCouverts * pct);
+    s.ingredients.forEach(function(ing){
+      if(!totauxIngs[ing.nom]){ totauxIngs[ing.nom] = {unite: ing.unite, besoin: 0}; }
+      totauxIngs[ing.nom].besoin += couvSauce * ing.qte;
+    });
+  });
+
+  // Affichage
+  document.getElementById('bloc-resultat').style.display = 'block';
+  document.getElementById('source-calcul').textContent = sourceTexte;
+
+  document.getElementById('res-moules-detail').innerHTML =
+    'Besoin brut : <b>' + besoinMoulesBrut.toFixed(1) + ' kg</b> + securite : <b>' + secuMoules + ' kg</b> - stock : <b>' + stockMoules + ' kg</b>';
+  document.getElementById('res-moules').textContent = besoinMoulesNet.toFixed(1) + ' kg a commander';
+
+  document.getElementById('res-frites-detail').innerHTML =
+    'Besoin brut : <b>' + besoinFritesBrut.toFixed(1) + ' kg</b> + securite : <b>' + secuFrites + ' kg</b> - stock : <b>' + stockFrites + ' kg</b>';
+  document.getElementById('res-frites').textContent = besoinFritesNet.toFixed(1) + ' kg a commander';
+
+  // Affichage ingredients sauces
+  var zRes = document.getElementById('res-ingredients');
+  zRes.innerHTML = '';
+  // Ligne par sauce d abord
+  SAUCES.forEach(function(s){
+    var pct = (parseInt(document.getElementById('pct-'+s.id).value)||0);
+    if(pct === 0) return;
+    var couvSauce = Math.round(totalCouverts * pct / 100);
+    var div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--bord)';
+    var rows = '<div style="font-weight:700;font-size:13.5px;margin-bottom:6px">' + s.emoji + ' ' + s.nom + ' — ' + pct + '% (' + couvSauce + ' couverts)</div>';
+    s.ingredients.forEach(function(ing){
+      var qTotale = (couvSauce * ing.qte);
+      var stockId = 'stocking-' + ing.nom.replace(/[^a-zA-Z0-9]/g,'_');
+      var stockEl = document.getElementById(stockId);
+      var stockVal = stockEl ? (parseFloat(stockEl.value)||0) : 0;
+      var net = Math.max(0, qTotale - stockVal);
+      var affiche = qTotale >= 1000 ? (qTotale/1000).toFixed(2) + ' kg' : qTotale.toFixed(0) + ' ' + ing.unite;
+      var afficheNet = net >= 1000 ? (net/1000).toFixed(2) + ' kg' : net.toFixed(0) + ' ' + ing.unite;
+      var netStyle = net > 0 ? 'color:var(--encre)' : 'color:var(--vert)';
+      rows += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;font-size:12.5px;padding:3px 0;border-bottom:1px dotted #eee">' +
+        '<span>' + ing.nom + '</span>' +
+        '<span style="color:var(--muet)">' + affiche + ' brut</span>' +
+        '<span style="font-weight:700;' + netStyle + '">' + (net > 0 ? afficheNet + ' cmd' : 'stock ok') + '</span></div>';
+    });
+    div.innerHTML = rows;
+    zRes.appendChild(div);
+  });
+
+  var alertes = [];
+  if(stockMoules >= besoinMoulesBrut){ alertes.push('Stock moules suffisant - pas de commande necessaire.'); }
+  if(stockFrites >= besoinFritesBrut){ alertes.push('Stock PDT suffisant - pas de commande necessaire.'); }
+  var blocAlerte = document.getElementById('bloc-alerte');
+  if(alertes.length > 0){ blocAlerte.style.display='block'; blocAlerte.innerHTML=alertes.join('<br>'); }
+  else { blocAlerte.style.display='none'; }
+
+  window._dernierBesoin = { moules: besoinMoulesNet, frites: besoinFritesNet, ingredients: totauxIngs };
+  document.getElementById('bloc-resultat').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+document.getElementById('btn-creer-commande-besoins').addEventListener('click', function(){
+  if(!window._dernierBesoin) return;
+  var b = window._dernierBesoin;
+  preparerFormulaireCommande();
+  allerPage('nouvelle');
+  document.getElementById('titre-nouvelle').textContent = 'Commande depuis besoins calcules';
+  document.getElementById('cmd-lignes').innerHTML = '';
+  if(b.moules > 0){ ajouterLigne('Moules de Mediterranee (Bouzigues)', Math.ceil(b.moules), 'kg', 2.65); }
+  if(b.frites > 0){ ajouterLigne('Pommes de terre Bintje/Agria', Math.ceil(b.frites), 'kg', 0.55); }
+  // Ajouter ingrédients sauces > 0
+  if(b.ingredients){
+    var prixRef = {
+      'Creme fraiche 30%': 3.50, 'Vin blanc sec cuisine': 2.80,
+      'Echalotes': 2.90, 'Persil frais': 0.90, 'Beurre doux': 2.20,
+      'Ail': 3.20, 'Tomates concassees 2.5kg': 3.80,
+      'Herbes de Provence': 8.00, 'Basilic frais': 1.50,
+      'Huile d olive': 4.50, 'Chorizo tranche': 7.00,
+      'Paprika fume': 9.00, 'Roquefort': 18.00, 'Noix': 12.00
+    };
+    Object.keys(b.ingredients).forEach(function(nom){
+      var info = b.ingredients[nom];
+      var stockId = 'stocking-' + nom.replace(/[^a-zA-Z0-9]/g,'_');
+      var stockEl = document.getElementById(stockId);
+      var stockVal = stockEl ? (parseFloat(stockEl.value)||0) : 0;
+      var net = Math.max(0, info.besoin - stockVal);
+      if(net > 0){
+        var qte = info.unite === 'g' ? (net/1000).toFixed(2) : (net/100).toFixed(2);
+        var unite = info.unite === 'g' ? 'kg' : 'L';
+        var prix = prixRef[nom] || 0;
+        ajouterLigne(nom, parseFloat(qte), unite, prix);
+      }
+    });
+  }
+  calculerTotalForm();
+  toast('Commande pre-remplie - choisis le fournisseur');
 });
 
 /* ===================== INITIALISATION FOURNISSEURS PAR DÉFAUT ===================== */
