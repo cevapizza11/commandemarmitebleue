@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1F4E4A">
+<title>Commandes Fournisseurs — La Marmite Bleue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivoire:#F7F3EB;
+  --teal:#1F4E4A;
+  --teal-fonce:#163B38;
+  --terracotta:#C4634F;
+  --terracotta-fonce:#A84E3C;
+  --encre:#2A2523;
+  --muet:#8A8378;
+  --carte:#FFFFFF;
+  --bord:#E5DFD2;
+  --vert:#3E7C4F;
+  --ambre:#C98A2D;
+  --rouge:#B03A2E;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Figtree',sans-serif;
+  background:var(--ivoire);
+  color:var(--encre);
+  padding-bottom:90px;
+  min-height:100vh;
+}
+/* ===== TOPBAR ===== */
+.topbar{
+  background:var(--teal);
+  color:var(--ivoire);
+  padding:14px 16px 12px;
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:baseline;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.topbar h1{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:800;font-size:22px;letter-spacing:.5px;text-transform:uppercase;
+}
+.topbar h1 span{color:var(--terracotta)}
+.build{font-size:11px;opacity:.75;font-weight:500}
+/* ===== TABS BAS ===== */
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:var(--teal-fonce);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar button{
+  flex:1;background:none;border:none;color:rgba(247,243,235,.55);
+  padding:12px 4px 10px;font-family:'Figtree',sans-serif;font-size:11px;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+}
+.tabbar button .ico{font-size:20px;line-height:1}
+.tabbar button.actif{color:var(--ivoire)}
+.tabbar button.actif .ico{transform:translateY(-1px)}
+.tabbar button.actif::after{content:'';width:22px;height:3px;background:var(--terracotta);border-radius:2px;margin-top:3px}
+/* ===== CONTENU ===== */
+.page{display:none;padding:16px;max-width:720px;margin:0 auto}
+.page.actif{display:block}
+h2.titre-section{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;
+  font-size:26px;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--teal);margin:6px 0 14px;
+}
+/* ===== CARTES COMMANDE ===== */
+.carte{
+  background:var(--carte);border:1px solid var(--bord);border-radius:12px;
+  padding:14px;margin-bottom:12px;border-left:5px solid var(--muet);
+  box-shadow:0 1px 3px rgba(42,37,35,.06);
+}
+.carte.st-brouillon{border-left-color:var(--ambre)}
+.carte.st-envoyee{border-left-color:var(--teal)}
+.carte.st-livree{border-left-color:var(--vert)}
+.carte-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.carte-tete .nomf{font-weight:700;font-size:16px}
+.chip{
+  display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;
+}
+.chip.brouillon{background:#F6E7CB;color:#8A5E14}
+.chip.envoyee{background:#D8E7E5;color:var(--teal)}
+.chip.livree{background:#D9E9DD;color:var(--vert)}
+.carte .dates{font-size:12.5px;color:var(--muet);margin-top:4px}
+.carte .lignes{margin:10px 0;font-size:14px}
+.carte .lignes div{padding:3px 0;border-bottom:1px dashed var(--bord);display:flex;justify-content:space-between;gap:8px}
+.carte .lignes div:last-child{border-bottom:none}
+.carte .total{font-weight:700;margin-top:6px;font-size:14px;color:var(--teal)}
+.carte .notes-aff{font-size:13px;background:var(--ivoire);border-radius:8px;padding:8px 10px;margin-top:8px;color:#5C554C}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* ===== BOUTONS ===== */
+.btn{
+  border:none;border-radius:10px;padding:10px 14px;font-family:'Figtree',sans-serif;
+  font-size:13.5px;font-weight:700;cursor:pointer;transition:opacity .15s;
+}
+.btn:active{opacity:.7}
+.btn-terra{background:var(--terracotta);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-vert{background:var(--vert);color:#fff}
+.btn-clair{background:#EFEAE0;color:var(--encre)}
+.btn-danger{background:transparent;color:var(--rouge);border:1px solid var(--rouge)}
+.btn-large{width:100%;padding:14px;font-size:15px;margin-top:8px}
+/* ===== FORMULAIRES ===== */
+label.champ{display:block;font-size:12.5px;font-weight:700;color:var(--teal);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.3px}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=number],select,textarea{
+  width:100%;padding:11px 12px;border:1px solid var(--bord);border-radius:10px;
+  font-family:'Figtree',sans-serif;font-size:15px;background:#fff;color:var(--encre);
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:1px}
+textarea{resize:vertical;min-height:64px}
+/* Lignes de commande */
+.ligne-cmd{
+  display:grid;grid-template-columns:1fr 64px 76px 84px 32px;gap:6px;align-items:center;margin-bottom:6px;
+}
+.ligne-cmd input{padding:9px 8px;font-size:14px}
+.ligne-cmd .suppr{
+  background:none;border:none;color:var(--rouge);font-size:18px;cursor:pointer;padding:4px;
+}
+.entete-lignes{display:grid;grid-template-columns:1fr 64px 76px 84px 32px;gap:6px;font-size:10.5px;font-weight:700;color:var(--muet);text-transform:uppercase;margin-bottom:4px}
+.total-form{
+  text-align:right;font-weight:800;font-size:16px;color:var(--teal);
+  margin-top:8px;padding:10px;background:#EDF2F1;border-radius:10px;
+}
+/* ===== FOURNISSEURS ===== */
+.carte-f{border-left-color:var(--terracotta)}
+.carte-f .contact{font-size:13.5px;color:#5C554C;margin-top:4px;line-height:1.5}
+.carte-f .produits-f{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.tag-prod{background:var(--ivoire);border:1px solid var(--bord);border-radius:20px;padding:3px 10px;font-size:12px}
+/* ===== FILTRES HISTORIQUE ===== */
+.filtres{display:flex;gap:8px;margin-bottom:14px}
+.filtres select{flex:1}
+/* ===== VIDE / CHARGEMENT ===== */
+.vide{
+  text-align:center;padding:40px 20px;color:var(--muet);font-size:14.5px;line-height:1.6;
+}
+.vide .grand{font-size:40px;margin-bottom:10px}
+/* ===== MODALE ===== */
+.voile{
+  display:none;position:fixed;inset:0;background:rgba(22,59,56,.55);z-index:100;
+  align-items:flex-end;justify-content:center;
+}
+.voile.ouvert{display:flex}
+.modale{
+  background:var(--ivoire);border-radius:18px 18px 0 0;width:100%;max-width:720px;
+  max-height:88vh;overflow-y:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+}
+.modale h3{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:22px;
+  text-transform:uppercase;color:var(--teal);margin-bottom:6px;
+}
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--encre);color:#fff;padding:11px 20px;border-radius:24px;
+  font-size:14px;font-weight:600;opacity:0;transition:all .25s;z-index:200;
+  pointer-events:none;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;
+}
+#toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Badge compteur onglet */
+.badge{
+  background:var(--terracotta);color:#fff;font-size:10px;font-weight:800;
+  border-radius:10px;padding:1px 6px;position:absolute;margin-left:26px;margin-top:-4px;
+}
+@media(min-width:600px){
+  .ligne-cmd{grid-template-columns:1fr 80px 100px 110px 36px}
+  .entete-lignes{grid-template-columns:1fr 80px 100px 110px 36px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>La Marmite <span>Bleue</span> · Commandes</h1>
+  <div class="build">v.04/07/2026 12:30</div>
+</div>
+
+<!-- ============ PAGE : COMMANDES EN COURS ============ -->
+<div class="page actif" id="page-commandes">
+  <h2 class="titre-section">Commandes en cours</h2>
+  <div id="liste-commandes"><div class="vide">Chargement…</div></div>
+</div>
+
+<!-- ============ PAGE : NOUVELLE COMMANDE ============ -->
+<div class="page" id="page-nouvelle">
+  <h2 class="titre-section" id="titre-nouvelle">Nouvelle commande</h2>
+
+  <label class="champ">Fournisseur</label>
+  <select id="cmd-fournisseur"></select>
+
+  <label class="champ">Livraison souhaitée</label>
+  <input type="date" id="cmd-date-livraison">
+
+  <label class="champ">Produits</label>
+  <div class="entete-lignes"><div>Produit</div><div>Qté</div><div>Unité</div><div>Prix U. €</div><div></div></div>
+  <div id="cmd-lignes"></div>
+  <button class="btn btn-clair" id="btn-ajout-ligne" style="width:100%;margin-top:4px">+ Ajouter un produit</button>
+
+  <div class="total-form" id="cmd-total">Total estimé : 0,00 €</div>
+
+  <label class="champ">Notes (facultatif)</label>
+  <textarea id="cmd-notes" placeholder="Ex : livrer avant 9h, entrée côté terrasse…"></textarea>
+
+  <button class="btn btn-terra btn-large" id="btn-enregistrer-cmd">💾 Enregistrer le brouillon</button>
+  <button class="btn btn-teal btn-large" id="btn-enregistrer-envoyer">📤 Enregistrer + marquer envoyée</button>
+</div>
+
+<!-- ============ PAGE : FOURNISSEURS ============ -->
+<div class="page" id="page-fournisseurs">
+  <h2 class="titre-section">Fournisseurs</h2>
+  <button class="btn btn-terra btn-large" id="btn-nouveau-f" style="margin-top:0;margin-bottom:8px">+ Nouveau fournisseur</button>
+  <button class="btn btn-clair btn-large" id="btn-init-f" style="margin-bottom:14px">🚀 Initialiser fournisseurs par défaut (La Marmite Bleue)</button>
+  <div id="liste-fournisseurs"><div class="vide">Chargement…</div></div>
+</div>
+
+<!-- ============ PAGE : HISTORIQUE ============ -->
+<div class="page" id="page-historique">
+  <h2 class="titre-section">Historique livré</h2>
+  <div class="filtres">
+    <select id="filtre-fournisseur"><option value="">Tous les fournisseurs</option></select>
+    <select id="filtre-mois"><option value="">Tous les mois</option></select>
+  </div>
+  <div id="liste-historique"><div class="vide">Chargement…</div></div>
+</div>
+
+<!-- ============ TABBAR ============ -->
+<div class="tabbar">
+  <button class="actif" data-page="commandes"><span class="ico">📋</span>Commandes<span class="badge" id="badge-cmd" style="display:none">0</span></button>
+  <button data-page="nouvelle"><span class="ico">➕</span>Nouvelle</button>
+  <button data-page="fournisseurs"><span class="ico">🚚</span>Fournisseurs</button>
+  <button data-page="historique"><span class="ico">🗂️</span>Historique</button>
+</div>
+
+<!-- ============ MODALE FOURNISSEUR ============ -->
+<div class="voile" id="voile-fournisseur">
+  <div class="modale">
+    <h3 id="titre-modale-f">Nouveau fournisseur</h3>
+    <label class="champ">Nom *</label>
+    <input type="text" id="f-nom" placeholder="Ex : La Noisette d'Oc">
+    <label class="champ">Contact</label>
+    <input type="text" id="f-contact" placeholder="Nom du contact">
+    <label class="champ">Téléphone</label>
+    <input type="tel" id="f-tel" placeholder="06 …">
+    <label class="champ">Email</label>
+    <input type="email" id="f-email" placeholder="contact@…">
+    <label class="champ">Jours de livraison</label>
+    <input type="text" id="f-jours" placeholder="Ex : mardi, vendredi">
+    <label class="champ">Délai de commande (jours avant livraison)</label>
+    <input type="number" id="f-delai" min="0" placeholder="Ex : 2">
+    <label class="champ">Produits habituels (nom | unité | prix, un par ligne)</label>
+    <textarea id="f-produits" rows="4" placeholder="Moules de Méditerranée | kg | 3.20&#10;Frites fraîches 9mm | kg | 1.80"></textarea>
+    <label class="champ">Notes</label>
+    <textarea id="f-notes" rows="2"></textarea>
+    <button class="btn btn-terra btn-large" id="btn-sauver-f">💾 Enregistrer</button>
+    <button class="btn btn-clair btn-large" id="btn-fermer-f">Annuler</button>
+  </div>
+</div>
+
+<!-- ============ MODALE RÉCEPTION ============ -->
+<div class="voile" id="voile-reception">
+  <div class="modale">
+    <h3>Réception de la livraison</h3>
+    <p style="font-size:14px;color:var(--muet);margin-bottom:4px" id="recep-info"></p>
+    <label class="champ">Conformité</label>
+    <select id="recep-conforme">
+      <option value="conforme">✅ Conforme</option>
+      <option value="partielle">⚠️ Livraison partielle</option>
+      <option value="non-conforme">❌ Non conforme</option>
+    </select>
+    <label class="champ">Remarques (facultatif)</label>
+    <textarea id="recep-notes" rows="3" placeholder="Ex : 2 sacs de moules manquants, avoir demandé…"></textarea>
+    <button class="btn btn-vert btn-large" id="btn-valider-recep">✅ Valider la réception</button>
+    <button class="btn btn-clair btn-large" id="btn-fermer-recep">Annuler</button>
+  </div>
+</div>
+
+<!-- ============ MODALE CONFIRMATION SUPPRESSION ============ -->
+<div class="voile" id="voile-confirm">
+  <div class="modale">
+    <h3>Confirmer</h3>
+    <p style="font-size:15px;margin:8px 0 4px" id="confirm-texte"></p>
+    <button class="btn btn-danger btn-large" id="btn-confirm-oui">Oui, supprimer</button>
+    <button class="btn btn-clair btn-large" id="btn-confirm-non">Annuler</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase compat SDK — scripts classiques, PAS de type="module" -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =====================================================
+   ⚠️ CONFIG FIREBASE — À REMPLACER PAR TA CONFIG
+   Console Firebase > Paramètres du projet > Tes applis
+   ===================================================== */
+var firebaseConfig = {
+  apiKey: "AIzaSyCH0SWbvOCD81PrVV_NAcOsZVpP1OIB1ck",
+  authDomain: "commande-marmite-bleue.firebaseapp.com",
+  projectId: "commande-marmite-bleue",
+  storageBucket: "commande-marmite-bleue.firebasestorage.app",
+  messagingSenderId: "384263307693",
+  appId: "1:384263307693:web:550660f9e6ef9a085ba124"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+/* ===================== ETAT GLOBAL ===================== */
+var listeFournisseurs = [];   // cache fournisseurs
+var listeCommandes = [];      // cache commandes non livrées
+var listeLivrees = [];        // cache commandes livrées (historique)
+var commandeEnEdition = null; // id si on modifie une commande existante
+var receptionCibleId = null;  // id commande en cours de réception
+var confirmCallback = null;   // callback de la modale de confirmation
+var fournisseurEnEdition = null;
+
+/* ===================== OUTILS ===================== */
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(function(){ t.classList.remove('visible'); }, 2600);
+}
+function euros(n){
+  return (parseFloat(n) || 0).toFixed(2).replace('.', ',') + ' €';
+}
+function dateFr(iso){
+  if(!iso) return '—';
+  var p = iso.split('-');
+  if(p.length !== 3) return iso;
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+function aujourdhuiISO(){
+  var d = new Date();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var j = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear() + '-' + m + '-' + j;
+}
+function echap(s){
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ===================== NAVIGATION ===================== */
+document.querySelectorAll('.tabbar button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tabbar button').forEach(function(b){ b.classList.remove('actif'); });
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('actif'); });
+    btn.classList.add('actif');
+    document.getElementById('page-' + btn.dataset.page).classList.add('actif');
+    if(btn.dataset.page === 'nouvelle' && !commandeEnEdition){ preparerFormulaireCommande(); }
+  });
+});
+function allerPage(nom){
+  document.querySelectorAll('.tabbar button').forEach(function(b){
+    if(b.dataset.page === nom){ b.click(); }
+  });
+}
+
+/* ===================== FOURNISSEURS ===================== */
+function chargerFournisseurs(){
+  return db.collection('fournisseurs').orderBy('nom').get().then(function(snap){
+    listeFournisseurs = [];
+    snap.forEach(function(doc){
+      var f = doc.data(); f.id = doc.id;
+      listeFournisseurs.push(f);
+    });
+    afficherFournisseurs();
+    remplirSelectsFournisseurs();
+  }).catch(function(err){
+    console.error(err);
+    document.getElementById('liste-fournisseurs').innerHTML =
+      '<div class="vide"><div class="grand">⚠️</div>Impossible de charger les fournisseurs.<br>Vérifie la config Firebase (ligne 16 du script).</div>';
+  });
+}
+
+function afficherFournisseurs(){
+  var zone = document.getElementById('liste-fournisseurs');
+  if(listeFournisseurs.length === 0){
+    zone.innerHTML = '<div class="vide"><div class="grand">🚚</div>Aucun fournisseur pour le moment.<br>Ajoute ton premier fournisseur (ex : La Noisette d\'Oc pour les moules).</div>';
+    return;
+  }
+  var html = '';
+  listeFournisseurs.forEach(function(f){
+    var prods = '';
+    (f.produits || []).forEach(function(p){
+      prods += '<span class="tag-prod">' + echap(p.nom) + '</span>';
+    });
+    html += '<div class="carte carte-f">' +
+      '<div class="carte-tete"><div class="nomf">' + echap(f.nom) + '</div></div>' +
+      '<div class="contact">' +
+        (f.contact ? '👤 ' + echap(f.contact) + '<br>' : '') +
+        (f.tel ? '📞 <a href="tel:' + echap(f.tel) + '">' + echap(f.tel) + '</a><br>' : '') +
+        (f.email ? '✉️ ' + echap(f.email) + '<br>' : '') +
+        (f.joursLivraison ? '📅 Livraison : ' + echap(f.joursLivraison) + '<br>' : '') +
+        (f.delaiJours ? '⏱️ Commander ' + f.delaiJours + ' j avant' : '') +
+      '</div>' +
+      (prods ? '<div class="produits-f">' + prods + '</div>' : '') +
+      '<div class="actions">' +
+        '<button class="btn btn-teal" onclick="commanderChez(\'' + f.id + '\')">📋 Commander</button>' +
+        '<button class="btn btn-clair" onclick="editerFournisseur(\'' + f.id + '\')">✏️ Modifier</button>' +
+        '<button class="btn btn-danger" onclick="demanderSuppressionF(\'' + f.id + '\')">🗑️</button>' +
+      '</div>' +
+    '</div>';
+  });
+  zone.innerHTML = html;
+}
+
+function remplirSelectsFournisseurs(){
+  var sel = document.getElementById('cmd-fournisseur');
+  var filtre = document.getElementById('filtre-fournisseur');
+  var options = '<option value="">— Choisir —</option>';
+  var optFiltre = '<option value="">Tous les fournisseurs</option>';
+  listeFournisseurs.forEach(function(f){
+    options += '<option value="' + f.id + '">' + echap(f.nom) + '</option>';
+    optFiltre += '<option value="' + f.id + '">' + echap(f.nom) + '</option>';
+  });
+  sel.innerHTML = options;
+  filtre.innerHTML = optFiltre;
+}
+
+/* --- Modale fournisseur --- */
+document.getElementById('btn-init-f').addEventListener('click', function(){
+  initialiserFournisseursParDefaut();
+});
+document.getElementById('btn-nouveau-f').addEventListener('click', function(){
+  fournisseurEnEdition = null;
+  document.getElementById('titre-modale-f').textContent = 'Nouveau fournisseur';
+  ['f-nom','f-contact','f-tel','f-email','f-jours','f-delai','f-produits','f-notes'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('voile-fournisseur').classList.add('ouvert');
+});
+document.getElementById('btn-fermer-f').addEventListener('click', function(){
+  document.getElementById('voile-fournisseur').classList.remove('ouvert');
+});
+
+function editerFournisseur(id){
+  var f = null;
+  listeFournisseurs.forEach(function(x){ if(x.id === id){ f = x; } });
+  if(!f) return;
+  fournisseurEnEdition = id;
+  document.getElementById('titre-modale-f').textContent = 'Modifier ' + f.nom;
+  document.getElementById('f-nom').value = f.nom || '';
+  document.getElementById('f-contact').value = f.contact || '';
+  document.getElementById('f-tel').value = f.tel || '';
+  document.getElementById('f-email').value = f.email || '';
+  document.getElementById('f-jours').value = f.joursLivraison || '';
+  document.getElementById('f-delai').value = f.delaiJours || '';
+  var lignesP = '';
+  (f.produits || []).forEach(function(p){
+    lignesP += p.nom + ' | ' + (p.unite || '') + ' | ' + (p.prix || '') + '\n';
+  });
+  document.getElementById('f-produits').value = lignesP.trim();
+  document.getElementById('f-notes').value = f.notes || '';
+  document.getElementById('voile-fournisseur').classList.add('ouvert');
+}
+
+document.getElementById('btn-sauver-f').addEventListener('click', function(){
+  var nom = document.getElementById('f-nom').value.trim();
+  if(!nom){ toast('⚠️ Le nom est obligatoire'); return; }
+  var produits = [];
+  document.getElementById('f-produits').value.split('\n').forEach(function(l){
+    var parts = l.split('|');
+    var pnom = (parts[0] || '').trim();
+    if(pnom){
+      produits.push({
+        nom: pnom,
+        unite: (parts[1] || '').trim(),
+        prix: parseFloat((parts[2] || '').trim().replace(',', '.')) || 0
+      });
+    }
+  });
+  var data = {
+    nom: nom,
+    contact: document.getElementById('f-contact').value.trim(),
+    tel: document.getElementById('f-tel').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    joursLivraison: document.getElementById('f-jours').value.trim(),
+    delaiJours: parseFloat(document.getElementById('f-delai').value) || 0,
+    produits: produits,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  var promesse;
+  if(fournisseurEnEdition){
+    promesse = db.collection('fournisseurs').doc(fournisseurEnEdition).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    promesse = db.collection('fournisseurs').add(data);
+  }
+  promesse.then(function(){
+    document.getElementById('voile-fournisseur').classList.remove('ouvert');
+    toast('✅ Fournisseur enregistré');
+    chargerFournisseurs();
+  }).catch(function(err){
+    console.error(err);
+    toast('❌ Erreur d\'enregistrement');
+  });
+});
+
+function demanderSuppressionF(id){
+  var f = null;
+  listeFournisseurs.forEach(function(x){ if(x.id === id){ f = x; } });
+  ouvrirConfirmation('Supprimer le fournisseur « ' + (f ? f.nom : '') + ' » ? Les commandes existantes seront conservées.', function(){
+    db.collection('fournisseurs').doc(id).delete().then(function(){
+      toast('🗑️ Fournisseur supprimé');
+      chargerFournisseurs();
+    }).catch(function(){ toast('❌ Erreur de suppression'); });
+  });
+}
+
+/* ===================== COMMANDES ===================== */
+function chargerCommandes(){
+  return db.collection('commandes').orderBy('dateCreation', 'desc').get().then(function(snap){
+    listeCommandes = [];
+    listeLivrees = [];
+    snap.forEach(function(doc){
+      var c = doc.data(); c.id = doc.id;
+      if(c.statut === 'livree'){ listeLivrees.push(c); }
+      else { listeCommandes.push(c); }
+    });
+    afficherCommandes();
+    afficherHistorique();
+    majBadge();
+    remplirFiltreMois();
+  }).catch(function(err){
+    console.error(err);
+    document.getElementById('liste-commandes').innerHTML =
+      '<div class="vide"><div class="grand">⚠️</div>Impossible de charger les commandes.<br>Vérifie la config Firebase.</div>';
+  });
+}
+
+function majBadge(){
+  var badge = document.getElementById('badge-cmd');
+  var n = listeCommandes.length;
+  if(n > 0){ badge.textContent = n; badge.style.display = 'inline-block'; }
+  else { badge.style.display = 'none'; }
+}
+
+function carteCommandeHTML(c, avecActions){
+  var lignesHtml = '';
+  var total = 0;
+  (c.lignes || []).forEach(function(l){
+    var sousTotal = (parseFloat(l.qte) || 0) * (parseFloat(l.prixU) || 0);
+    total += sousTotal;
+    lignesHtml += '<div><span>' + echap(l.produit) + '</span><span>' +
+      (parseFloat(l.qte) || 0) + ' ' + echap(l.unite || '') +
+      (sousTotal > 0 ? ' · ' + euros(sousTotal) : '') + '</span></div>';
+  });
+  var chip = '';
+  if(c.statut === 'brouillon'){ chip = '<span class="chip brouillon">Brouillon</span>'; }
+  if(c.statut === 'envoyee'){ chip = '<span class="chip envoyee">Envoyée</span>'; }
+  if(c.statut === 'livree'){ chip = '<span class="chip livree">Livrée</span>'; }
+
+  var dates = '📅 Livraison souhaitée : <b>' + dateFr(c.dateLivraisonSouhaitee) + '</b>';
+  if(c.dateEnvoi){ dates += ' · envoyée le ' + dateFr(c.dateEnvoi); }
+  if(c.dateLivraison){ dates += ' · livrée le ' + dateFr(c.dateLivraison); }
+
+  var actions = '';
+  if(avecActions){
+    actions = '<div class="actions">';
+    if(c.statut === 'brouillon'){
+      actions += '<button class="btn btn-teal" onclick="marquerEnvoyee(\'' + c.id + '\')">📤 Marquer envoyée</button>';
+      actions += '<button class="btn btn-clair" onclick="editerCommande(\'' + c.id + '\')">✏️ Modifier</button>';
+    }
+    if(c.statut === 'envoyee'){
+      actions += '<button class="btn btn-vert" onclick="ouvrirReception(\'' + c.id + '\')">📦 Réceptionner</button>';
+    }
+    actions += '<button class="btn btn-clair" onclick="copierCommande(\'' + c.id + '\')">📋 Copier texte</button>';
+    actions += '<button class="btn btn-danger" onclick="demanderSuppressionC(\'' + c.id + '\')">🗑️</button>';
+    actions += '</div>';
+  }
+
+  var recep = '';
+  if(c.conformite && c.conformite !== 'conforme'){
+    recep = '<div class="notes-aff">⚠️ Réception : ' + echap(c.conformite) +
+      (c.notesReception ? ' — ' + echap(c.notesReception) : '') + '</div>';
+  }
+
+  return '<div class="carte st-' + c.statut + '">' +
+    '<div class="carte-tete"><div class="nomf">' + echap(c.fournisseurNom) + '</div>' + chip + '</div>' +
+    '<div class="dates">' + dates + '</div>' +
+    '<div class="lignes">' + lignesHtml + '</div>' +
+    (total > 0 ? '<div class="total">Total estimé : ' + euros(total) + '</div>' : '') +
+    (c.notes ? '<div class="notes-aff">📝 ' + echap(c.notes) + '</div>' : '') +
+    recep + actions +
+  '</div>';
+}
+
+function afficherCommandes(){
+  var zone = document.getElementById('liste-commandes');
+  if(listeCommandes.length === 0){
+    zone.innerHTML = '<div class="vide"><div class="grand">🦪</div>Aucune commande en cours.<br>Passe par l\'onglet « Nouvelle » pour créer ta première commande.</div>';
+    return;
+  }
+  var html = '';
+  listeCommandes.forEach(function(c){ html += carteCommandeHTML(c, true); });
+  zone.innerHTML = html;
+}
+
+/* --- Formulaire nouvelle commande --- */
+function preparerFormulaireCommande(){
+  commandeEnEdition = null;
+  document.getElementById('titre-nouvelle').textContent = 'Nouvelle commande';
+  document.getElementById('cmd-fournisseur').value = '';
+  document.getElementById('cmd-date-livraison').value = aujourdhuiISO();
+  document.getElementById('cmd-notes').value = '';
+  document.getElementById('cmd-lignes').innerHTML = '';
+  ajouterLigne();
+  calculerTotalForm();
+}
+
+function ajouterLigne(produit, qte, unite, prixU){
+  var div = document.createElement('div');
+  div.className = 'ligne-cmd';
+  div.innerHTML =
+    '<input type="text" class="l-produit" placeholder="Produit" value="' + echap(produit || '') + '">' +
+    '<input type="number" class="l-qte" inputmode="decimal" step="any" min="0" placeholder="0" value="' + (qte || '') + '">' +
+    '<input type="text" class="l-unite" placeholder="kg" value="' + echap(unite || '') + '">' +
+    '<input type="number" class="l-prix" inputmode="decimal" step="any" min="0" placeholder="0.00" value="' + (prixU || '') + '">' +
+    '<button class="suppr" title="Supprimer la ligne">✕</button>';
+  div.querySelector('.suppr').addEventListener('click', function(){
+    div.remove();
+    calculerTotalForm();
+  });
+  div.querySelectorAll('input').forEach(function(inp){
+    inp.addEventListener('input', calculerTotalForm);
+  });
+  document.getElementById('cmd-lignes').appendChild(div);
+}
+document.getElementById('btn-ajout-ligne').addEventListener('click', function(){ ajouterLigne(); });
+
+/* Quand on choisit un fournisseur, proposer ses produits habituels */
+document.getElementById('cmd-fournisseur').addEventListener('change', function(){
+  var id = this.value;
+  var f = null;
+  listeFournisseurs.forEach(function(x){ if(x.id === id){ f = x; } });
+  if(!f || !(f.produits || []).length) return;
+  // Ne pré-remplit que si le formulaire est encore vide
+  var lignesActuelles = document.querySelectorAll('#cmd-lignes .ligne-cmd');
+  var vide = true;
+  lignesActuelles.forEach(function(l){
+    if(l.querySelector('.l-produit').value.trim() !== ''){ vide = false; }
+  });
+  if(!vide) return;
+  document.getElementById('cmd-lignes').innerHTML = '';
+  f.produits.forEach(function(p){
+    ajouterLigne(p.nom, '', p.unite, p.prix || '');
+  });
+  calculerTotalForm();
+  toast('Produits habituels pré-remplis — mets les quantités');
+});
+
+function lireLignesFormulaire(){
+  var lignes = [];
+  document.querySelectorAll('#cmd-lignes .ligne-cmd').forEach(function(div){
+    var produit = div.querySelector('.l-produit').value.trim();
+    var qte = parseFloat(div.querySelector('.l-qte').value) || 0;
+    if(produit && qte > 0){
+      lignes.push({
+        produit: produit,
+        qte: qte,
+        unite: div.querySelector('.l-unite').value.trim(),
+        prixU: parseFloat(div.querySelector('.l-prix').value) || 0
+      });
+    }
+  });
+  return lignes;
+}
+
+function calculerTotalForm(){
+  var total = 0;
+  document.querySelectorAll('#cmd-lignes .ligne-cmd').forEach(function(div){
+    var qte = parseFloat(div.querySelector('.l-qte').value) || 0;
+    var prix = parseFloat(div.querySelector('.l-prix').value) || 0;
+    total += qte * prix;
+  });
+  document.getElementById('cmd-total').textContent = 'Total estimé : ' + euros(total);
+}
+
+function enregistrerCommande(statut){
+  var fid = document.getElementById('cmd-fournisseur').value;
+  if(!fid){ toast('⚠️ Choisis un fournisseur'); return; }
+  var lignes = lireLignesFormulaire();
+  if(lignes.length === 0){ toast('⚠️ Ajoute au moins un produit avec une quantité'); return; }
+  var f = null;
+  listeFournisseurs.forEach(function(x){ if(x.id === fid){ f = x; } });
+  var total = 0;
+  lignes.forEach(function(l){ total += l.qte * l.prixU; });
+
+  var data = {
+    fournisseurId: fid,
+    fournisseurNom: f ? f.nom : '?',
+    statut: statut,
+    dateLivraisonSouhaitee: document.getElementById('cmd-date-livraison').value || '',
+    lignes: lignes,
+    totalEstime: total,
+    notes: document.getElementById('cmd-notes').value.trim()
+  };
+  if(statut === 'envoyee'){ data.dateEnvoi = aujourdhuiISO(); }
+
+  var promesse;
+  if(commandeEnEdition){
+    promesse = db.collection('commandes').doc(commandeEnEdition).update(data);
+  } else {
+    data.dateCreation = firebase.firestore.FieldValue.serverTimestamp();
+    promesse = db.collection('commandes').add(data);
+  }
+  promesse.then(function(){
+    toast(statut === 'envoyee' ? '📤 Commande enregistrée et marquée envoyée' : '💾 Brouillon enregistré');
+    commandeEnEdition = null;
+    return chargerCommandes();
+  }).then(function(){
+    allerPage('commandes');
+  }).catch(function(err){
+    console.error(err);
+    toast('❌ Erreur d\'enregistrement');
+  });
+}
+document.getElementById('btn-enregistrer-cmd').addEventListener('click', function(){ enregistrerCommande('brouillon'); });
+document.getElementById('btn-enregistrer-envoyer').addEventListener('click', function(){ enregistrerCommande('envoyee'); });
+
+function editerCommande(id){
+  var c = null;
+  listeCommandes.forEach(function(x){ if(x.id === id){ c = x; } });
+  if(!c) return;
+  commandeEnEdition = id;
+  allerPage('nouvelle');
+  document.getElementById('titre-nouvelle').textContent = 'Modifier la commande';
+  document.getElementById('cmd-fournisseur').value = c.fournisseurId || '';
+  document.getElementById('cmd-date-livraison').value = c.dateLivraisonSouhaitee || '';
+  document.getElementById('cmd-notes').value = c.notes || '';
+  document.getElementById('cmd-lignes').innerHTML = '';
+  (c.lignes || []).forEach(function(l){
+    ajouterLigne(l.produit, l.qte, l.unite, l.prixU || '');
+  });
+  calculerTotalForm();
+}
+
+function commanderChez(fid){
+  preparerFormulaireCommande();
+  allerPage('nouvelle');
+  document.getElementById('cmd-fournisseur').value = fid;
+  // déclenche le pré-remplissage des produits habituels
+  var evt = new Event('change');
+  document.getElementById('cmd-fournisseur').dispatchEvent(evt);
+}
+
+function marquerEnvoyee(id){
+  db.collection('commandes').doc(id).update({
+    statut: 'envoyee',
+    dateEnvoi: aujourdhuiISO()
+  }).then(function(){
+    toast('📤 Commande marquée envoyée');
+    chargerCommandes();
+  }).catch(function(){ toast('❌ Erreur'); });
+}
+
+/* --- Réception --- */
+function ouvrirReception(id){
+  receptionCibleId = id;
+  var c = null;
+  listeCommandes.forEach(function(x){ if(x.id === id){ c = x; } });
+  document.getElementById('recep-info').textContent = c ? (c.fournisseurNom + ' — livraison souhaitée le ' + dateFr(c.dateLivraisonSouhaitee)) : '';
+  document.getElementById('recep-conforme').value = 'conforme';
+  document.getElementById('recep-notes').value = '';
+  document.getElementById('voile-reception').classList.add('ouvert');
+}
+document.getElementById('btn-fermer-recep').addEventListener('click', function(){
+  document.getElementById('voile-reception').classList.remove('ouvert');
+});
+document.getElementById('btn-valider-recep').addEventListener('click', function(){
+  if(!receptionCibleId) return;
+  db.collection('commandes').doc(receptionCibleId).update({
+    statut: 'livree',
+    dateLivraison: aujourdhuiISO(),
+    conformite: document.getElementById('recep-conforme').value,
+    notesReception: document.getElementById('recep-notes').value.trim()
+  }).then(function(){
+    document.getElementById('voile-reception').classList.remove('ouvert');
+    toast('✅ Livraison réceptionnée');
+    receptionCibleId = null;
+    chargerCommandes();
+  }).catch(function(){ toast('❌ Erreur'); });
+});
+
+/* --- Copie texte de commande (pour SMS / email / WhatsApp) --- */
+function copierCommande(id){
+  var c = null;
+  listeCommandes.forEach(function(x){ if(x.id === id){ c = x; } });
+  listeLivrees.forEach(function(x){ if(x.id === id){ c = x; } });
+  if(!c) return;
+  var txt = 'Bonjour,\nCommande La Marmite Bleue — Saint-Pierre-la-Mer\n';
+  txt += 'Livraison souhaitée : ' + dateFr(c.dateLivraisonSouhaitee) + '\n\n';
+  (c.lignes || []).forEach(function(l){
+    txt += '- ' + l.produit + ' : ' + l.qte + ' ' + (l.unite || '') + '\n';
+  });
+  if(c.notes){ txt += '\nNote : ' + c.notes + '\n'; }
+  txt += '\nMerci,\nThomas — La Marmite Bleue';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      toast('📋 Commande copiée — colle-la dans un SMS ou email');
+    }).catch(function(){ copieSecours(txt); });
+  } else {
+    copieSecours(txt);
+  }
+}
+function copieSecours(txt){
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast('📋 Commande copiée'); }
+  catch(e){ toast('❌ Copie impossible sur ce navigateur'); }
+  document.body.removeChild(ta);
+}
+
+function demanderSuppressionC(id){
+  ouvrirConfirmation('Supprimer définitivement cette commande ?', function(){
+    db.collection('commandes').doc(id).delete().then(function(){
+      toast('🗑️ Commande supprimée');
+      chargerCommandes();
+    }).catch(function(){ toast('❌ Erreur de suppression'); });
+  });
+}
+
+/* ===================== HISTORIQUE ===================== */
+function remplirFiltreMois(){
+  var sel = document.getElementById('filtre-mois');
+  var moisVus = {};
+  listeLivrees.forEach(function(c){
+    if(c.dateLivraison){
+      var cle = c.dateLivraison.substring(0, 7); // AAAA-MM
+      moisVus[cle] = true;
+    }
+  });
+  var nomsMois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var cles = Object.keys(moisVus).sort().reverse();
+  var html = '<option value="">Tous les mois</option>';
+  cles.forEach(function(cle){
+    var parts = cle.split('-');
+    var libelle = nomsMois[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+    html += '<option value="' + cle + '">' + libelle + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
+function afficherHistorique(){
+  var zone = document.getElementById('liste-historique');
+  var ff = document.getElementById('filtre-fournisseur').value;
+  var fm = document.getElementById('filtre-mois').value;
+  var filtrees = listeLivrees.filter(function(c){
+    if(ff && c.fournisseurId !== ff) return false;
+    if(fm && (!c.dateLivraison || c.dateLivraison.substring(0, 7) !== fm)) return false;
+    return true;
+  });
+  if(filtrees.length === 0){
+    zone.innerHTML = '<div class="vide"><div class="grand">🗂️</div>Aucune commande livrée pour ces critères.</div>';
+    return;
+  }
+  var totalPeriode = 0;
+  var html = '';
+  filtrees.forEach(function(c){
+    totalPeriode += parseFloat(c.totalEstime) || 0;
+    html += carteCommandeHTML(c, false);
+  });
+  html = '<div class="total-form" style="margin-bottom:14px;text-align:left">💶 Total période : ' + euros(totalPeriode) + ' (' + filtrees.length + ' commande' + (filtrees.length > 1 ? 's' : '') + ')</div>' + html;
+  zone.innerHTML = html;
+}
+document.getElementById('filtre-fournisseur').addEventListener('change', afficherHistorique);
+document.getElementById('filtre-mois').addEventListener('change', afficherHistorique);
+
+/* ===================== CONFIRMATION ===================== */
+function ouvrirConfirmation(texte, callback){
+  document.getElementById('confirm-texte').textContent = texte;
+  confirmCallback = callback;
+  document.getElementById('voile-confirm').classList.add('ouvert');
+}
+document.getElementById('btn-confirm-oui').addEventListener('click', function(){
+  document.getElementById('voile-confirm').classList.remove('ouvert');
+  if(confirmCallback){ confirmCallback(); confirmCallback = null; }
+});
+document.getElementById('btn-confirm-non').addEventListener('click', function(){
+  document.getElementById('voile-confirm').classList.remove('ouvert');
+  confirmCallback = null;
+});
+
+/* ===================== INITIALISATION FOURNISSEURS PAR DÉFAUT ===================== */
+var FOURNISSEURS_DEFAUT = [
+  {
+    nom: "La Noisette d'Oc",
+    contact: "Accueil commercial",
+    tel: "04 67 43 70 66",
+    email: "",
+    joursLivraison: "Lundi, mercredi, vendredi",
+    delaiJours: 2,
+    notes: "Fournisseur principal moules Bouzigues. Étang de Thau — Mèze (34). Source principale haute saison juin→oct.",
+    produits: [
+      { nom: "Moules de Méditerranée (Bouzigues)", unite: "kg", prix: 2.65 },
+      { nom: "Moules calibre 2 (backup)", unite: "kg", prix: 2.50 }
+    ]
+  },
+  {
+    nom: "La Perle de Thau",
+    contact: "Accueil",
+    tel: "04 67 43 82 66",
+    email: "",
+    joursLivraison: "Mardi, jeudi",
+    delaiJours: 2,
+    notes: "Fournisseur backup moules. Loupian (34). À activer si La Noisette d'Oc est en rupture ou en renfort haute saison.",
+    produits: [
+      { nom: "Moules de Méditerranée (backup)", unite: "kg", prix: 2.65 },
+      { nom: "Moules calibre 3", unite: "kg", prix: 2.50 }
+    ]
+  },
+  {
+    nom: "Metro Narbonne",
+    contact: "Accueil caisse",
+    tel: "",
+    email: "",
+    joursLivraison: "Lundi au samedi (retrait direct)",
+    delaiJours: 0,
+    notes: "Avenue du Forum — Narbonne. Moules basse saison + pommes de terre + épicerie sèche. Livraison possible sur commande pro.",
+    produits: [
+      { nom: "Moules basse saison", unite: "kg", prix: 2.35 },
+      { nom: "Pommes de terre Bintje/Agria", unite: "kg", prix: 0.55 },
+      { nom: "Beurre doux 500g", unite: "pièce", prix: 2.20 },
+      { nom: "Crème fraîche 30% 1L", unite: "litre", prix: 3.50 },
+      { nom: "Vin blanc sec cuisine 1L", unite: "litre", prix: 2.80 },
+      { nom: "Échalotes", unite: "kg", prix: 2.90 },
+      { nom: "Ail", unite: "kg", prix: 3.20 },
+      { nom: "Persil frais", unite: "botte", prix: 0.90 },
+      { nom: "Curry en poudre", unite: "kg", prix: 12.00 },
+      { nom: "Huile de friture 10L", unite: "bidon", prix: 18.50 },
+      { nom: "Sel gros", unite: "kg", prix: 0.60 },
+      { nom: "Poivre noir moulu", unite: "kg", prix: 8.00 },
+      { nom: "Farine T55 1kg", unite: "kg", prix: 0.95 },
+      { nom: "Sucre 1kg", unite: "kg", prix: 1.10 },
+      { nom: "Oignons", unite: "kg", prix: 1.20 },
+      { nom: "Tomates concassées 2,5kg", unite: "boîte", prix: 3.80 },
+      { nom: "Safran dosettes 0,1g", unite: "dosette", prix: 0.85 },
+      { nom: "Citrons", unite: "kg", prix: 2.40 }
+    ]
+  },
+  {
+    nom: "Produitaglace.fr — Aude",
+    contact: "Service commercial",
+    tel: "04 48 27 04 10",
+    email: "",
+    joursLivraison: "Sur commande",
+    delaiJours: 5,
+    notes: "Coulis, mix sundae, granita 3 parfums, viennoiseries congelées éventuellement. Commande mensuelle conseillée.",
+    produits: [
+      { nom: "Mix granita citron 5L", unite: "bidon", prix: 14.50 },
+      { nom: "Mix granita fraise 5L", unite: "bidon", prix: 14.50 },
+      { nom: "Mix granita menthe 5L", unite: "bidon", prix: 14.50 },
+      { nom: "Coulis framboise 1L", unite: "litre", prix: 6.80 },
+      { nom: "Coulis caramel 1L", unite: "litre", prix: 5.50 },
+      { nom: "Mix sundae vanille 2L", unite: "bidon", prix: 8.90 },
+      { nom: "Mix sundae chocolat 2L", unite: "bidon", prix: 8.90 }
+    ]
+  },
+  {
+    nom: "Boulangerie locale (à confirmer)",
+    contact: "",
+    tel: "",
+    email: "",
+    joursLivraison: "Tous les jours matin",
+    delaiJours: 1,
+    notes: "Viennoiseries petit déjeuner. Budget estimé ~150 €/semaine haute saison. Fournisseur à sélectionner avant ouverture mars 2027.",
+    produits: [
+      { nom: "Croissants", unite: "pièce", prix: 0.75 },
+      { nom: "Pains au chocolat", unite: "pièce", prix: 0.85 },
+      { nom: "Pains aux raisins", unite: "pièce", prix: 0.85 },
+      { nom: "Baguettes tradition", unite: "pièce", prix: 1.10 },
+      { nom: "Brioches individuelles", unite: "pièce", prix: 0.95 }
+    ]
+  }
+];
+
+function initialiserFournisseursParDefaut(){
+  if(listeFournisseurs.length > 0){
+    ouvrirConfirmation(
+      'Des fournisseurs existent déjà (' + listeFournisseurs.length + '). Ajouter quand même les fournisseurs par défaut (La Noisette d\'Oc, Metro, etc.) EN PLUS des existants ?',
+      function(){ _ecrireFournisseursDefaut(); }
+    );
+  } else {
+    _ecrireFournisseursDefaut();
+  }
+}
+
+function _ecrireFournisseursDefaut(){
+  var batch = db.batch();
+  FOURNISSEURS_DEFAUT.forEach(function(f){
+    var ref = db.collection('fournisseurs').doc();
+    f.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    batch.set(ref, f);
+  });
+  batch.commit().then(function(){
+    toast('✅ ' + FOURNISSEURS_DEFAUT.length + ' fournisseurs ajoutés !');
+    chargerFournisseurs();
+  }).catch(function(err){
+    console.error(err);
+    toast('❌ Erreur lors de l\'initialisation');
+  });
+}
+
+/* ===================== DEMARRAGE ===================== */
+chargerFournisseurs().then(function(){
+  return chargerCommandes();
+});
+preparerFormulaireCommande();
+</script>
+</body>
+</html>
