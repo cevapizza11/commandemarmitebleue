@@ -177,7 +177,7 @@ textarea{resize:vertical;min-height:64px}
 
 <div class="topbar">
   <h1>La Marmite <span>Bleue</span> · Commandes</h1>
-  <div class="build">v.04/07/2026 13:45</div>
+  <div class="build">v.25/10/2026 10:45</div>
 </div>
 
 <!-- ============ PAGE : COMMANDES EN COURS ============ -->
@@ -413,6 +413,7 @@ textarea{resize:vertical;min-height:64px}
 <!-- Firebase compat SDK — scripts classiques, PAS de type="module" -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 /* =====================================================
    ⚠️ CONFIG FIREBASE — À REMPLACER PAR TA CONFIG
@@ -1446,11 +1447,65 @@ function _ecrireFournisseursDefaut(){
   });
 }
 
-/* ===================== DEMARRAGE =====================  */
-chargerFournisseurs().then(function(){
-  return chargerCommandes();
+/* ===================== SÉCURITÉ (25/10/2026) =====================
+   Appli réservée aux appareils activés : les règles Firestore n'autorisent que ce compte.
+   À faire UNE fois par appareil (la session est gardée). */
+var EMAIL_ACTIVATION = "tmjumeaux@gmail.com";
+var appliDemarree = false;
+function ecranActivation(visible){
+  var el = document.getElementById('ecranActivation');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'ecranActivation';
+    el.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#14233a;color:#fff;display:none;align-items:center;justify-content:center;padding:24px;font-family:system-ui,sans-serif';
+    el.innerHTML =
+      '<div style="width:100%;max-width:380px;text-align:center">' +
+        '<div style="font-size:44px;margin-bottom:8px">🔒</div>' +
+        '<div style="font-weight:800;font-size:22px">Activer cet appareil</div>' +
+        '<div style="font-size:13px;color:#cfd8e3;margin:10px 0 18px;line-height:1.5">Commandes fournisseurs<br>Pour protéger vos fournisseurs et commandes, seuls les appareils activés par le gérant peuvent ouvrir l\'appli. À faire une seule fois.</div>' +
+        '<input id="activationPwd" type="password" autocomplete="current-password" placeholder="Mot de passe du compte gérant" style="width:100%;box-sizing:border-box;padding:14px;border-radius:12px;border:1px solid #4a90d9;background:#0d1828;color:#fff;font-size:16px">' +
+        '<button id="activationBtn" style="width:100%;margin-top:12px;padding:14px;border:none;border-radius:12px;background:#2f6fb5;color:#fff;font-weight:700;font-size:16px;cursor:pointer">🔓 Activer</button>' +
+        '<div id="activationErr" style="color:#ff8a80;font-size:13px;min-height:18px;margin-top:10px"></div>' +
+        '<button id="activationOubli" type="button" style="background:none;border:none;color:#cfd8e3;text-decoration:underline;font-size:13px;cursor:pointer">Mot de passe oublié ?</button>' +
+        '<div style="font-size:11px;color:#8a97a8;margin-top:14px">v.25/10/2026 10:45</div>' +
+      '</div>';
+    document.body.appendChild(el);
+    var err = function(){ return document.getElementById('activationErr'); };
+    var activer = function(){
+      var pwd = document.getElementById('activationPwd').value;
+      err().style.color = '#ff8a80'; err().textContent = '';
+      if(!pwd){ err().textContent = 'Entrez le mot de passe'; return; }
+      firebase.auth().signInWithEmailAndPassword(EMAIL_ACTIVATION, pwd).then(function(){
+        document.getElementById('activationPwd').value = '';
+      }).catch(function(e){
+        console.error(e);
+        err().textContent = e.code === 'auth/too-many-requests' ? "Trop d'essais — réessayez dans quelques minutes"
+          : e.code === 'auth/network-request-failed' ? 'Pas de connexion internet' : '❌ Mot de passe incorrect';
+      });
+    };
+    document.getElementById('activationBtn').addEventListener('click', activer);
+    document.getElementById('activationPwd').addEventListener('keydown', function(e){ if(e.key === 'Enter') activer(); });
+    document.getElementById('activationOubli').addEventListener('click', function(){
+      firebase.auth().sendPasswordResetEmail(EMAIL_ACTIVATION).then(function(){
+        err().style.color = '#8fd19e'; err().textContent = '📧 E-mail de réinitialisation envoyé au gérant';
+      }).catch(function(){ err().style.color = '#ff8a80'; err().textContent = 'Envoi impossible — réessayez plus tard'; });
+    });
+  }
+  el.style.display = visible ? 'flex' : 'none';
+}
+
+/* ===================== DEMARRAGE (après activation de l'appareil) =====================  */
+firebase.auth().onAuthStateChanged(function(user){
+  var ok = !!(user && !user.isAnonymous && user.email === EMAIL_ACTIVATION);
+  ecranActivation(!ok);
+  if(ok && !appliDemarree){
+    appliDemarree = true;
+    chargerFournisseurs().then(function(){
+      return chargerCommandes();
+    });
+    preparerFormulaireCommande();
+  }
 });
-preparerFormulaireCommande();
 </script>
 </body>
 </html>
